@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="AtsaWindow" parent="AdwApplicationWindow">
+    <property name="title" translatable="yes">Atsa</property>
+    <child>
+      <object class="AdwToolbarView">
+        <property name="top-bar-style">0</property>
+        <child type="top">
+          <object class="AdwHeaderBar"></object>
+        </child>
+        <child>
+          <object class="AdwStatusPage">
+            <property name="icon-name">x-office-document-symbolic</property>
+            <property name="title" translatable="yes">Open Project</property>
+            <property name="description" translatable="yes">Start a new Project or continue working on an existing one</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">1</property>
+                <property name="halign">3</property>
+                <property name="spacing">12</property>
+                <child>
+                  <object class="GtkLabel" id="label"> <property name="label" translatable="yes"></property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">Create New Project</property>
+                    <property name="action-name">win.create-project</property>
+                    <style>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">Open Folder</property>
+                    <property name="action-name">app.open-project</property>
+                    <style>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">Open File</property>
+                    <property name="action-name">app.open-file</property>
+                    <style>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

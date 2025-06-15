@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=atsa
+Exec=atsa
+Icon=org.nam.atsa
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

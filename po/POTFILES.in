@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/org.nam.atsa.desktop.in
+data/org.nam.atsa.metainfo.xml.in
+data/org.nam.atsa.gschema.xml
+src/main.c
+src/atsa-window.c
+src/atsa-window.ui
