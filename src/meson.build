@@ -2,6 +2,7 @@ atsa_sources = [
   'main.c',
   'atsa-application.c',
   'atsa-window.c',
+  'atsa-test-window.c',
 ]
 
 incdir = include_directories('.')

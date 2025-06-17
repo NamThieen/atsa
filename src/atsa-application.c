@@ -23,6 +23,7 @@
 #include <gtk/gtk.h> // Includes GtkFileDialog, GtkFileFilter, GListStore, etc.
 #include "atsa-application.h"
 #include "atsa-window.h"
+#include "atsa-test-window.h"
 #include "rust_questions_api.h"
 struct _AtsaApplication
 {
@@ -141,7 +142,6 @@ atsa_application_open_project_action (GSimpleAction *action,
                                    NULL);         // User data to pass to the callback (not used here)
 }
 
-
 static void
 open_file_dialog_response_cb (GObject      *source_object,
                               GAsyncResult *res,
@@ -151,18 +151,7 @@ open_file_dialog_response_cb (GObject      *source_object,
     GFile         *file = NULL;
     GError        *error = NULL;
     gchar         *input_path = NULL;
-    size_t         total_questions = 0;
-    size_t         i = 0;
-    QuestionTypeC  q_type;
-    char          *question_text = NULL;
-    size_t         mc_option_count = 0;
-    char         **mc_options = NULL;
-    size_t         mc_correct_answer = 0;
-    size_t         tf_statement_count = 0;
-    char         **tf_statements = NULL;
-    unsigned char *tf_correct_answers = NULL;
-    size_t         j = 0;
-
+    AtsaApplication *app = user_data; // Get application instance to pass to new window
 
     file = gtk_file_dialog_open_finish (dialog, res, &error);
 
@@ -174,77 +163,16 @@ open_file_dialog_response_cb (GObject      *source_object,
     else if (file)
     {
         input_path = g_file_get_path (file);
-        g_print("Selected YAML file for processing: %s\n", input_path);
+        g_print("Selected YAML file: %s\n", input_path);
 
-        if (load_questions_into_memory(input_path) == 0)
-        {
-            g_print("Questions loaded into Rust memory successfully.\n");
+        // NEW: Create and show the new AtsaTestWindow
+        AtsaTestWindow *test_window = atsa_test_window_new(GTK_APPLICATION(app), input_path);
+        gtk_window_present(GTK_WINDOW(test_window));
 
-            total_questions = get_total_question_count();
-            g_print("Total questions found: %zu\n", total_questions);
+        // OLD LOGIC REMOVED: Removed the direct FFI calls and printing loop here.
+        // The new AtsaTestWindow will be responsible for loading and displaying questions.
 
-            for (i = 0; i < total_questions; ++i)
-            {
-                q_type = get_question_type(i);
-                question_text = get_question_text(i);
-
-                g_print("\n--- Question %zu ---\n", i + 1);
-                if (question_text != NULL) {
-                    g_print("Question Text: %s\n", question_text);
-                    free_cstring(question_text);
-                    question_text = NULL;
-                } else {
-                    g_print("Question Text: (Error or not found)\n");
-                }
-
-
-                if (q_type == QUESTION_TYPE_MULTIPLE_CHOICE)
-                {
-                    g_print("Type: Multiple Choice\n");
-                    mc_option_count = 0;
-                    mc_options = get_mc_options(i, &mc_option_count);
-                    mc_correct_answer = get_mc_correct_answer(i);
-
-                    if (mc_options != NULL && mc_option_count > 0) {
-                        g_print("Options:\n");
-                        for (j = 0; j < mc_option_count; ++j) {
-                            g_print("  %zu: %s\n", j, mc_options[j]);
-                        }
-                        free_string_array(mc_options, mc_option_count);
-                        mc_options = NULL;
-                    }
-                    g_print("Correct Answer Index: %zu\n", mc_correct_answer);
-                }
-                else if (q_type == QUESTION_TYPE_TRUE_FALSE)
-                {
-                    g_print("Type: True/False\n");
-                    tf_statement_count = 0;
-                    tf_statements = get_tf_statements(i, &tf_statement_count);
-                    tf_correct_answers = get_tf_correct_answers(i, &tf_statement_count);
-
-                    if (tf_statements != NULL && tf_correct_answers != NULL && tf_statement_count > 0) {
-                        g_print("Statements:\n");
-                        for (j = 0; j < tf_statement_count; ++j) {
-                            g_print("  - \"%s\" -> %s\n", tf_statements[j], tf_correct_answers[j] ? "TRUE" : "FALSE");
-                        }
-                        free_string_array(tf_statements, tf_statement_count);
-                        tf_statements = NULL;
-                        free_bool_array(tf_correct_answers);
-                        tf_correct_answers = NULL;
-                    }
-                }
-                else
-                {
-                    g_print("Type: Unknown or Invalid\n");
-                }
-            }
-        }
-        else
-        {
-            g_printerr("Failed to load questions into Rust memory.\n");
-        }
-
-        g_free (input_path);
+        g_free (input_path); // Free the path string as it's been copied by the new window
         g_object_unref (file);
     }
     else
@@ -254,6 +182,7 @@ open_file_dialog_response_cb (GObject      *source_object,
 
     g_object_unref (dialog);
 }
+
 
 
 static void
